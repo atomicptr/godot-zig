@@ -37,6 +37,7 @@ pub fn build(b: *std.build.Builder) void {
     const testFiles = [_][]const u8{
         "src/main.zig",
         "bindgen/main.zig",
+        "bindgen/names.zig",
     };
 
     // define steps

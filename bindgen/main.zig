@@ -1,8 +1,10 @@
 const std = @import("std");
 const json = @import("json");
 const godot = @import("godot.zig");
+const render = @import("render.zig");
 
 const outputDir = "./godot";
+const globalConstantsFileName = "global_constants.zig";
 const apiJsonFilePath = "./godot-headers/api.json";
 
 pub fn main() anyerror!void {
@@ -32,45 +34,16 @@ fn generateApi(allocator: std.mem.Allocator) !void {
 
     const classes = try parseApiFile(allocator, api_file);
 
-    std.log.info("{d}", .{classes.len});
-
     for (classes) |class| {
-        std.log.info("class {s}({s})", .{ class.name, class.base_class });
+        if (std.mem.eql(u8, class.name, "GlobalConstants")) {
+            const file = try target_dir.createFile(globalConstantsFileName, .{});
+            defer file.close();
 
-        if (class.constants.len > 0) {
-            std.log.info("\tConstants:", .{});
-            for (class.constants) |constant| {
-                std.log.info("\t\t{s}: {s}", .{ constant.key, constant.value });
-            }
+            try file.writeAll(try render.createConstantsFile(class.constants));
+            continue;
         }
 
-        if (class.properties.len > 0) {
-            std.log.info("\tProperties:", .{});
-            for (class.properties) |property| {
-                std.log.info("\t\t{s}: {s}", .{ property.name, property.type_name });
-            }
-        }
-
-        if (class.methods.len > 0) {
-            std.log.info("\tMethods:", .{});
-            for (class.methods) |method| {
-                std.log.info("\t\t{s}({d} args): {s}", .{ method.name, method.arguments.len, method.return_type });
-            }
-        }
-
-        if (class.signals.len > 0) {
-            std.log.info("\tSignals:", .{});
-            for (class.signals) |signal| {
-                std.log.info("\t\t{s}({d} args)", .{ signal.name, signal.arguments.len });
-            }
-        }
-
-        if (class.enums.len > 0) {
-            std.log.info("\tEnums:", .{});
-            for (class.enums) |e| {
-                std.log.info("\t\t{s}", .{ e.name });
-            }
-        }
+        // TODO: other classes...
     }
 }
 

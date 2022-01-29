@@ -159,9 +159,9 @@ const KeyValuePairValue = union(enum) {
     }
 };
 
-const KeyValuePair = struct { key: []const u8, value: KeyValuePairValue };
+pub const KeyValuePair = struct { key: []const u8, value: KeyValuePairValue };
 
-const Method = struct {
+pub const Method = struct {
     name: []const u8,
     return_type: []const u8,
     is_editor: bool,
@@ -174,19 +174,19 @@ const Method = struct {
     arguments: []MethodArgument,
 };
 
-const MethodArgument = struct {
+pub const MethodArgument = struct {
     name: []const u8,
     type_name: []const u8,
     has_default_value: bool,
     default_value: []const u8,
 };
 
-const Signal = struct {
+pub const Signal = struct {
     name: []const u8,
     arguments: []MethodArgument,
 };
 
-const Property = struct {
+pub const Property = struct {
     name: []const u8,
     type_name: []const u8,
     getter: []const u8,
@@ -194,7 +194,7 @@ const Property = struct {
     index: i64,
 };
 
-const Enum = struct {
+pub const Enum = struct {
     name: []const u8,
     values: []KeyValuePair,
 };
