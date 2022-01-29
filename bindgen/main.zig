@@ -43,6 +43,34 @@ fn generateApi(allocator: std.mem.Allocator) !void {
                 std.log.info("\t\t{s}: {s}", .{ constant.key, constant.value });
             }
         }
+
+        if (class.properties.len > 0) {
+            std.log.info("\tProperties:", .{});
+            for (class.properties) |property| {
+                std.log.info("\t\t{s}: {s}", .{ property.name, property.type_name });
+            }
+        }
+
+        if (class.methods.len > 0) {
+            std.log.info("\tMethods:", .{});
+            for (class.methods) |method| {
+                std.log.info("\t\t{s}({d} args): {s}", .{ method.name, method.arguments.len, method.return_type });
+            }
+        }
+
+        if (class.signals.len > 0) {
+            std.log.info("\tSignals:", .{});
+            for (class.signals) |signal| {
+                std.log.info("\t\t{s}({d} args)", .{ signal.name, signal.arguments.len });
+            }
+        }
+
+        if (class.enums.len > 0) {
+            std.log.info("\tEnums:", .{});
+            for (class.enums) |e| {
+                std.log.info("\t\t{s}", .{ e.name });
+            }
+        }
     }
 }
 
