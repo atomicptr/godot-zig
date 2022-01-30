@@ -2,18 +2,17 @@ const std = @import("std");
 const json = @import("json");
 const godot = @import("godot.zig");
 const render = @import("render.zig");
+const names = @import("names.zig");
 
 const outputDir = "./src/gen";
-const globalConstantsFileName = "global_constants.zig";
+const importsFileFileName = "__import.zig";
 const apiJsonFilePath = "./godot-headers/api.json";
 
 pub fn main() anyerror!void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
 
-    generateApi(allocator) catch |err| {
-        std.log.info("Could not generate bindings: {s}", .{err});
-    };
+    try generateApi(allocator);
 }
 
 fn generateApi(allocator: std.mem.Allocator) !void {
@@ -34,17 +33,38 @@ fn generateApi(allocator: std.mem.Allocator) !void {
 
     const classes = try parseApiFile(allocator, api_file);
 
-    for (classes) |class| {
-        if (std.mem.eql(u8, class.name, "GlobalConstants")) {
-            const file = try target_dir.createFile(globalConstantsFileName, .{});
-            defer file.close();
+    var importFiles = try allocator.alloc(u8, classes.len*4096);
+    defer allocator.free(importFiles);
 
+    var index: usize = 0;
+
+    for (classes) |class| {
+        const filename = names.toZigFilename(class.name);
+        std.log.info("generating {s}...", .{filename});
+
+        std.mem.copy(u8, importFiles[index..], filename);
+        index += filename.len;
+        importFiles[index] = '|';
+        index += 1;
+
+        const file = try target_dir.createFile(filename, .{});
+        defer file.close();
+
+        if (std.mem.eql(u8, class.name, "GlobalConstants")) {
             try file.writeAll(try render.createConstantsFile(class.constants));
             continue;
         }
-
-        // TODO: other classes...
+        try file.writeAll(try render.createClassFile(&class));
     }
+
+    // remove the last '|'
+    index -= 1;
+
+    const importsFile = try target_dir.createFile(importsFileFileName, .{});
+    defer importsFile.close();
+
+    try importsFile.writeAll(try render.createImportsFile(importFiles[0..index]));
+    std.log.info("Done!", .{});
 }
 
 fn parseApiFile(allocator: std.mem.Allocator, file: std.fs.File) ![]godot.Class {

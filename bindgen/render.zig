@@ -11,8 +11,38 @@ pub fn createConstantsFile(constants: []godot.KeyValuePair) ![]const u8 {
     _ = try std.fmt.bufPrint(buffer[index..], headerComment, .{});
     index += headerComment.len;
 
-   for (constants) |constant| {
-        const written = try std.fmt.bufPrint(buffer[index..], "pub const {s} = {s};\n", .{names.toZigConstant(constant.key), constant.value});
+    for (constants) |constant| {
+        const written = try std.fmt.bufPrint(
+            buffer[index..],
+            "pub const {s} = {s};\n",
+            .{names.toZigConstant(constant.key), constant.value},
+        );
+        index += written.len;
+    }
+
+    return buffer[0..index];
+}
+
+pub fn createClassFile(class: *const godot.Class) ![]const u8 {
+    _ = class;
+    return headerComment;
+}
+
+pub fn createImportsFile(fileNames: []const u8) ![]const u8 {
+    var buffer: [16*4096]u8 = undefined;
+    var index: usize = 0;
+
+    _ = try std.fmt.bufPrint(buffer[index..], headerComment, .{});
+    index += headerComment.len;
+
+    var files = std.mem.split(u8, fileNames, "|");
+
+    while (files.next()) |fileName| {
+        const written = try std.fmt.bufPrint(
+            buffer[index..],
+            "pub usingnamespace @import(\"{s}\");\n",
+            .{fileName},
+        );
         index += written.len;
     }
 

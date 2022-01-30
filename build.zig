@@ -28,7 +28,7 @@ pub fn build(b: *std.build.Builder) void {
     deps.addAllTo(bindgen);
 
     const bindgen_cmd = bindgen.run();
-    bindgen_cmd.step.dependOn(b.getInstallStep());
+    bindgen_cmd.step.dependOn(&bindgen.step);
     if (b.args) |args| {
         bindgen_cmd.addArgs(args);
     }
