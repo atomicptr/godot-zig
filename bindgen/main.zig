@@ -3,7 +3,7 @@ const json = @import("json");
 const godot = @import("godot.zig");
 const render = @import("render.zig");
 
-const outputDir = "./godot";
+const outputDir = "./src/gen";
 const globalConstantsFileName = "global_constants.zig";
 const apiJsonFilePath = "./godot-headers/api.json";
 
