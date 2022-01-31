@@ -3,10 +3,8 @@ const json = @import("json");
 const godot = @import("godot.zig");
 const render = @import("render.zig");
 const names = @import("names.zig");
+const config = @import("config.zig");
 
-const outputDir = "./src/gen";
-const importsFileFileName = "__import.zig";
-const apiJsonFilePath = "./godot-headers/api.json";
 
 pub fn main() anyerror!void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -17,16 +15,16 @@ pub fn main() anyerror!void {
 
 fn generateApi(allocator: std.mem.Allocator) !void {
     // delete the old output directory
-    try std.fs.cwd().deleteTree(outputDir);
+    try std.fs.cwd().deleteTree(config.outputDir);
 
     // create and open a new one...
-    var target_dir = try std.fs.cwd().makeOpenPath(outputDir, .{
+    var target_dir = try std.fs.cwd().makeOpenPath(config.outputDir, .{
         .access_sub_paths = false,
     });
     defer target_dir.close();
 
     // read the api.json file from godot-headers...
-    var api_file = try std.fs.cwd().openFile(apiJsonFilePath, .{
+    var api_file = try std.fs.cwd().openFile(config.apiJsonFilePath, .{
         .read = true,
     });
     defer api_file.close();
@@ -60,7 +58,7 @@ fn generateApi(allocator: std.mem.Allocator) !void {
     // remove the last '|'
     index -= 1;
 
-    const importsFile = try target_dir.createFile(importsFileFileName, .{});
+    const importsFile = try target_dir.createFile(config.importsFileFileName, .{});
     defer importsFile.close();
 
     try importsFile.writeAll(try render.createImportsFile(importFiles[0..index]));
