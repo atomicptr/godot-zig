@@ -15,24 +15,24 @@ pub fn main() anyerror!void {
 
 fn generateApi(allocator: std.mem.Allocator) !void {
     // delete the old output directory
-    try std.fs.cwd().deleteTree(config.outputDir);
+    try std.fs.cwd().deleteTree(config.output_dir);
 
     // create and open a new one...
-    var target_dir = try std.fs.cwd().makeOpenPath(config.outputDir, .{
+    var target_dir = try std.fs.cwd().makeOpenPath(config.output_dir, .{
         .access_sub_paths = false,
     });
     defer target_dir.close();
 
     // read the api.json file from godot-headers...
-    var api_file = try std.fs.cwd().openFile(config.apiJsonFilePath, .{
+    var api_file = try std.fs.cwd().openFile(config.api_json_filepath, .{
         .read = true,
     });
     defer api_file.close();
 
     const classes = try parseApiFile(allocator, api_file);
 
-    var importFiles = try allocator.alloc(u8, classes.len*4096);
-    defer allocator.free(importFiles);
+    var files_to_import = try allocator.alloc(u8, classes.len*4096);
+    defer allocator.free(files_to_import);
 
     var index: usize = 0;
 
@@ -40,28 +40,28 @@ fn generateApi(allocator: std.mem.Allocator) !void {
         const filename = names.toZigFilename(class.name);
         std.log.info("generating {s}...", .{filename});
 
-        std.mem.copy(u8, importFiles[index..], filename);
+        std.mem.copy(u8, files_to_import[index..], filename);
         index += filename.len;
-        importFiles[index] = '|';
+        files_to_import[index] = '|';
         index += 1;
 
         const file = try target_dir.createFile(filename, .{});
         defer file.close();
 
         if (std.mem.eql(u8, class.name, "GlobalConstants")) {
-            try file.writeAll(try render.createConstantsFile(class.constants));
+            try file.writeAll(try render.createConstantsFile(allocator, class.constants));
             continue;
         }
-        try file.writeAll(try render.createClassFile(&class));
+        try file.writeAll(try render.createClassFile(allocator, &class));
     }
 
     // remove the last '|'
     index -= 1;
 
-    const importsFile = try target_dir.createFile(config.importsFileFileName, .{});
-    defer importsFile.close();
+    const imports_file = try target_dir.createFile(config.imports_file_filename, .{});
+    defer imports_file.close();
 
-    try importsFile.writeAll(try render.createImportsFile(importFiles[0..index]));
+    try imports_file.writeAll(try render.createImportsFile(allocator, files_to_import[0..index]));
     std.log.info("Done!", .{});
 }
 

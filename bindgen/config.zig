@@ -1,3 +1,3 @@
-pub const outputDir = "./src/gen";
-pub const importsFileFileName = "__import.zig";
-pub const apiJsonFilePath = "./godot-headers/api.json";
+pub const output_dir = "./src/gen";
+pub const imports_file_filename = "__import.zig";
+pub const api_json_filepath = "./godot-headers/api.json";
