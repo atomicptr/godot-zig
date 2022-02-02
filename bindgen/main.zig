@@ -85,20 +85,15 @@ fn readFile(allocator: std.mem.Allocator, file: std.fs.File) ![]u8 {
     var buffered_reader = std.io.bufferedReader(file.reader());
     var in_stream = buffered_reader.reader();
 
-    const stat = try file.stat();
+    var out = std.ArrayList(u8).init(allocator);
+    defer out.deinit();
 
-    var out = try allocator.alloc(u8, stat.size);
-    // TODO: need to deallocate you somewhere... maybe
-    // defer allocator.free(out);
-
-    var index: usize = 0;
     var buffer: [1024]u8 = undefined;
     while (try in_stream.readUntilDelimiterOrEof(&buffer, '\n')) |line| {
-        std.mem.copy(u8, out[index..], line);
-        index += line.len;
+        try out.appendSlice(line);
     }
 
-    return out;
+    return out.toOwnedSlice();
 }
 
 test "basic bindgen tests" {
