@@ -5,7 +5,6 @@ const render = @import("render.zig");
 const names = @import("names.zig");
 const config = @import("config.zig");
 
-
 pub fn main() anyerror!void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
@@ -31,13 +30,13 @@ fn generateApi(allocator: std.mem.Allocator) !void {
 
     const classes = try parseApiFile(allocator, api_file);
 
-    var files_to_import = try allocator.alloc(u8, classes.len*4096);
+    var files_to_import = try allocator.alloc(u8, classes.len * 4096);
     defer allocator.free(files_to_import);
 
     var index: usize = 0;
 
     for (classes) |class| {
-        const filename = names.toZigFilename(class.name);
+        const filename = try names.toZigFilename(class.name);
         std.log.info("generating {s}...", .{filename});
 
         std.mem.copy(u8, files_to_import[index..], filename);

@@ -1,46 +1,53 @@
 const std = @import("std");
 
-pub fn toZigConstant(name: []const u8) []const u8 {
-    var buffer: [4096]u8 = undefined;
-    var index: usize = 0;
+// TODO: move allocator into function args
+const allocator = std.heap.page_allocator;
+
+pub fn toZigConstant(name: []const u8) ![]const u8 {
+    var buffer = std.ArrayList(u8).init(allocator);
+    defer buffer.deinit();
+
     var parts = std.mem.split(u8, name, "_");
     while (parts.next()) |part| {
         for (part) |char, i| {
-            var transform_func = std.ascii.toLower;
-            if (i == 0) {
-                transform_func = std.ascii.toUpper;
-            }
-            buffer[index] = transform_func(char);
-            index += 1;
+            const transform_func = if (i == 0) std.ascii.toUpper else std.ascii.toLower;
+            try buffer.append(transform_func(char));
         }
     }
-    return buffer[0..index];
+
+    return buffer.toOwnedSlice();
 }
 
-pub fn toZigFilename(name: []const u8) []const u8 {
-    var buffer: [4096]u8 = undefined;
-    const basename = camelCaseToSnakeCase(name);
-    const extname = ".zig";
-    std.mem.copy(u8, buffer[0..], basename);
-    std.mem.copy(u8, buffer[basename.len..], extname);
-    return buffer[0..basename.len+extname.len];
+pub fn toZigFilename(name: []const u8) ![]const u8 {
+    var buffer = std.ArrayList(u8).init(allocator);
+    defer buffer.deinit();
+
+    const basename = try camelCaseToSnakeCase(name);
+    try std.fmt.format(
+        buffer.writer(),
+        "{s}.zig",
+        .{basename},
+    );
+
+    return buffer.toOwnedSlice();
 }
 
-pub fn camelCaseToSnakeCase(name: []const u8) []const u8 {
-    var buffer: [4096]u8 = undefined;
-    var index: usize = 0;
+pub fn camelCaseToSnakeCase(name: []const u8) ![]const u8 {
+    var buffer = std.ArrayList(u8).init(allocator);
+    defer buffer.deinit();
+
     var parts = upperCaseSplit(name);
     while (parts.next()) |part| {
         for (part) |char| {
-            buffer[index] = std.ascii.toLower(char);
-            index += 1;
+            try buffer.append(std.ascii.toLower(char));
         }
-        buffer[index] = '_';
-        index += 1;
+        try buffer.append('_');
     }
+
     // remove the last '_';
-    index -= 1;
-    return buffer[0..index];
+    try buffer.resize(buffer.items.len - 1);
+
+    return buffer.toOwnedSlice();
 }
 
 fn upperCaseSplit(name: []const u8) UpperCaseSplitIterator {
@@ -82,13 +89,13 @@ const UpperCaseSplitIterator = struct {
 };
 
 test "convert godot constant names to Zig constant names" {
-    try std.testing.expectEqualStrings("MyVeryCoolConstantName", toZigConstant("MY_VERY_COOL_CONSTANT_NAME"));
-    try std.testing.expectEqualStrings("PropertyUsageRestartIfChanged", toZigConstant("PROPERTY_USAGE_RESTART_IF_CHANGED"));
+    try std.testing.expectEqualStrings("MyVeryCoolConstantName", try toZigConstant("MY_VERY_COOL_CONSTANT_NAME"));
+    try std.testing.expectEqualStrings("PropertyUsageRestartIfChanged", try toZigConstant("PROPERTY_USAGE_RESTART_IF_CHANGED"));
 }
 
 test "splitting a string on upper cases: mySuperGreatTest" {
     var parts = upperCaseSplit("mySuperGreatTest");
-    const expected: [4][]const u8 = .{"my", "Super", "Great", "Test"};
+    const expected: [4][]const u8 = .{ "my", "Super", "Great", "Test" };
     var i: usize = 0;
     while (parts.next()) |part| {
         try std.testing.expectEqualStrings(expected[i], part);
@@ -102,7 +109,7 @@ test "splitting a string on upper cases: URLResolver" {
 
 test "splitting a string on upper cases: MeshInstance3D" {
     var parts = upperCaseSplit("MeshInstance3D");
-    const expected: [3][]const u8 = .{"Mesh", "Instance", "3D"};
+    const expected: [3][]const u8 = .{ "Mesh", "Instance", "3D" };
     var i: usize = 0;
     while (parts.next()) |part| {
         try std.testing.expectEqualStrings(expected[i], part);
@@ -112,7 +119,7 @@ test "splitting a string on upper cases: MeshInstance3D" {
 
 test "splitting a string on upper cases: ARVRPositionalTracker" {
     var parts = upperCaseSplit("ARVRPositionalTracker");
-    const expected: [2][]const u8 = .{"ARVRPositional", "Tracker"};
+    const expected: [2][]const u8 = .{ "ARVRPositional", "Tracker" };
     var i: usize = 0;
     while (parts.next()) |part| {
         try std.testing.expectEqualStrings(expected[i], part);
@@ -121,12 +128,12 @@ test "splitting a string on upper cases: ARVRPositionalTracker" {
 }
 
 test "convert camel case string to snake case" {
-    try std.testing.expectEqualStrings("my_super_great_test", camelCaseToSnakeCase("mySuperGreatTest"));
-    try std.testing.expectEqualStrings("urlresolver", camelCaseToSnakeCase("URLResolver"));
-    try std.testing.expectEqualStrings("mesh_instance_3d", camelCaseToSnakeCase("MeshInstance3D"));
-    try std.testing.expectEqualStrings("arvrpositional_tracker", camelCaseToSnakeCase("ARVRPositionalTracker"));
+    try std.testing.expectEqualStrings("my_super_great_test", try camelCaseToSnakeCase("mySuperGreatTest"));
+    try std.testing.expectEqualStrings("urlresolver", try camelCaseToSnakeCase("URLResolver"));
+    try std.testing.expectEqualStrings("mesh_instance_3d", try camelCaseToSnakeCase("MeshInstance3D"));
+    try std.testing.expectEqualStrings("arvrpositional_tracker", try camelCaseToSnakeCase("ARVRPositionalTracker"));
 }
 
 test "convert godot class name to .zig filename" {
-    try std.testing.expectEqualStrings("mesh_instance_3d.zig", toZigFilename("MeshInstance3D"));
+    try std.testing.expectEqualStrings("mesh_instance_3d.zig", try toZigFilename("MeshInstance3D"));
 }

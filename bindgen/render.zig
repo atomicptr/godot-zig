@@ -12,10 +12,7 @@ pub fn createConstantsFile(allocator: std.mem.Allocator, constants: []godot.KeyV
     try buffer.appendSlice(headerComment);
 
     for (constants) |constant| {
-        try std.fmt.format(buffer.writer(), "pub const {s} = {s};\n", .{
-            names.toZigConstant(constant.key),
-            constant.value
-        });
+        try std.fmt.format(buffer.writer(), "pub const {s} = {s};\n", .{ try names.toZigConstant(constant.key), constant.value });
     }
 
     return buffer.toOwnedSlice();
@@ -25,20 +22,134 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
     var buffer = std.ArrayList(u8).init(allocator);
     defer buffer.deinit();
 
+    // add header
     try buffer.appendSlice(headerComment);
 
-    const defaultImports =
+    try std.fmt.format(
+        buffer.writer(),
         \\const godot = @import("{s}");
+        \\const types = @import("../types.zig");
+        \\const api = @import("../api.zig");
         \\const c_api = @import("../c_api.zig");
-        \\// Class: {s}
-        ;
+        \\
+        \\
+    ,
+        .{
+            config.imports_file_filename,
+        },
+    );
 
-    try std.fmt.format(buffer.writer(), defaultImports, .{
-        config.imports_file_filename,
-        class.name
+    const has_base_class = class.base_class.len > 0;
+    if (has_base_class) {
+        try std.fmt.format(
+            buffer.writer(),
+            \\// base class
+            \\const {s} = @import("{s}").{s};
+            \\
+            \\
+        ,
+            .{
+                class.base_class,
+                try names.toZigFilename(class.base_class),
+                class.base_class,
+            },
+        );
+    }
+
+    // add method bindings
+    const has_methods = class.methods.len > 0;
+    if (has_methods) {
+        try buffer.appendSlice("// method bindings\n");
+    }
+
+    for (class.methods) |method| {
+        if (method.is_virtual) {
+            continue;
+        }
+
+        try std.fmt.format(
+            buffer.writer(),
+            "var mbind_{s}: ?*c_api.godot_method_bind = null;\n",
+            .{
+                method.name,
+            },
+        );
+    }
+
+    // add constructor
+    const class_name_snake_case = names.camelCaseToSnakeCase(class.name);
+    try std.fmt.format(
+        buffer.writer(),
+        "var mbind_{s}_constructor: ?types.ConstructorFunc = null;\n",
+        .{
+            class_name_snake_case,
+        },
+    );
+
+    // add struct
+    try std.fmt.format(
+        buffer.writer(),
+        "\npub const {s} = struct {{\n",
+        .{
+            class.name,
+        },
+    );
+
+    try buffer.appendSlice("    const Self = @This();\n");
+
+    if (has_base_class) {
+        try std.fmt.format(
+            buffer.writer(),
+            "    const BaseClass = {s};\n",
+            .{
+                class.base_class,
+            },
+        );
+    }
+
+    // properties
+    try buffer.appendSlice("\n    //base: *BaseClass,\n");
+
+    // methods
+    try std.fmt.format(buffer.writer(),
+        \\
+        \\    pub fn init() !*Self {{
+        \\        if (mbind_{s}_constructor == null) {{
+        \\            mbind_{s}_constructor = api.createConstructor("{s}");
+        \\        }}
+        \\        return api.createObject(Self, mbind_{s}_constructor.?);
+        \\    }}
+        \\
+        \\    pub fn deinit(self: *Self) void {{
+        \\        _ = api.core.?.godot_object_destroy.?(@ptrCast(*c_api.godot_object, self));
+        \\    }}
+        \\
+        \\
+    , .{
+        class_name_snake_case,
+        class_name_snake_case,
+        class.name,
+        class_name_snake_case,
     });
 
+    for (class.methods) |method| {
+        if (method.is_virtual) {
+            continue;
+        }
+        try appendMethod(allocator, &buffer, &method, has_base_class);
+    }
+
+    try buffer.appendSlice("};");
+
     return buffer.toOwnedSlice();
+}
+
+fn appendMethod(allocator: std.mem.Allocator, buffer: *std.ArrayList(u8), method: *const godot.Method, has_base_class: bool) !void {
+    _ = allocator;
+    _ = has_base_class;
+    try buffer.appendSlice("    // Method: ");
+    try buffer.appendSlice(method.name);
+    try buffer.appendSlice("\n");
 }
 
 pub fn createImportsFile(allocator: std.mem.Allocator, fileNames: []const u8) ![]const u8 {
