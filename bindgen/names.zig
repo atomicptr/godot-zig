@@ -1,18 +1,7 @@
 const std = @import("std");
 
 pub fn toZigConstant(allocator: std.mem.Allocator, name: []const u8) ![]const u8 {
-    var buffer = std.ArrayList(u8).init(allocator);
-    defer buffer.deinit();
-
-    var parts = std.mem.split(u8, name, "_");
-    while (parts.next()) |part| {
-        for (part) |char, i| {
-            const transform_func = if (i == 0) std.ascii.toUpper else std.ascii.toLower;
-            try buffer.append(transform_func(char));
-        }
-    }
-
-    return buffer.toOwnedSlice();
+    return try snakeCaseToCamelCase(allocator, name, true);
 }
 
 pub fn toZigFilename(allocator: std.mem.Allocator, name: []const u8) ![]const u8 {
@@ -25,6 +14,31 @@ pub fn toZigFilename(allocator: std.mem.Allocator, name: []const u8) ![]const u8
         "{s}.zig",
         .{basename},
     );
+
+    return buffer.toOwnedSlice();
+}
+
+pub fn snakeCaseToCamelCase(allocator: std.mem.Allocator, name: []const u8, first_char_capitalized: bool) ![]const u8 {
+    var buffer = std.ArrayList(u8).init(allocator);
+    defer buffer.deinit();
+
+    var first_char_processed = false;
+
+    var parts = std.mem.split(u8, name, "_");
+    while (parts.next()) |part| {
+        for (part) |char, i| {
+            if (!first_char_processed and !first_char_capitalized) {
+                try buffer.append(std.ascii.toLower(char));
+                first_char_processed = true;
+                continue;
+            }
+
+            const transform_func = if (i == 0) std.ascii.toUpper else std.ascii.toLower;
+            try buffer.append(transform_func(char));
+
+            first_char_processed = true;
+        }
+    }
 
     return buffer.toOwnedSlice();
 }
@@ -131,6 +145,12 @@ test "convert camel case string to snake case" {
     try std.testing.expectEqualStrings("urlresolver", try camelCaseToSnakeCase(test_allocator, "URLResolver"));
     try std.testing.expectEqualStrings("mesh_instance_3d", try camelCaseToSnakeCase(test_allocator, "MeshInstance3D"));
     try std.testing.expectEqualStrings("arvrpositional_tracker", try camelCaseToSnakeCase(test_allocator, "ARVRPositionalTracker"));
+}
+
+test "convert snake case string to camel case" {
+    try std.testing.expectEqualStrings("mySuperGreatTest", try snakeCaseToCamelCase(test_allocator, "my_super_great_test", false));
+    try std.testing.expectEqualStrings("urlResolver", try snakeCaseToCamelCase(test_allocator, "url_resolver", false));
+    try std.testing.expectEqualStrings("MeshInstance", try snakeCaseToCamelCase(test_allocator, "mesh_instance", true));
 }
 
 test "convert godot class name to .zig filename" {

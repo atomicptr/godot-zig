@@ -13,6 +13,12 @@ the tag of godot-headers and re-generating the bindings.
 
 TODO: add usage examples...
 
+## Inspired by
+
+* [godotengine/godot-cpp](https://github.com/godotengine/godot-cpp)
+* [godot-rust/godot-rust](https://github.com/godot-rust/godot-rust)
+* [outrera/godot-zig](https://github.com/outrera/godot-zig)
+
 ## License
 
 MIT
