@@ -36,7 +36,7 @@ fn generateApi(allocator: std.mem.Allocator) !void {
     var index: usize = 0;
 
     for (classes) |class| {
-        const filename = try names.toZigFilename(class.name);
+        const filename = try names.toZigFilename(allocator, class.name);
         std.log.info("generating {s}...", .{filename});
 
         std.mem.copy(u8, files_to_import[index..], filename);

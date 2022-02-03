@@ -12,7 +12,7 @@ pub fn createConstantsFile(allocator: std.mem.Allocator, constants: []godot.KeyV
     try buffer.appendSlice(headerComment);
 
     for (constants) |constant| {
-        try std.fmt.format(buffer.writer(), "pub const {s} = {s};\n", .{ try names.toZigConstant(constant.key), constant.value });
+        try std.fmt.format(buffer.writer(), "pub const {s} = {s};\n", .{ try names.toZigConstant(allocator, constant.key), constant.value });
     }
 
     return buffer.toOwnedSlice();
@@ -50,7 +50,7 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
         ,
             .{
                 class.base_class,
-                try names.toZigFilename(class.base_class),
+                try names.toZigFilename(allocator, class.base_class),
                 class.base_class,
             },
         );
@@ -76,8 +76,8 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
         );
     }
 
-    // add constructor
-    const class_name_snake_case = names.camelCaseToSnakeCase(class.name);
+    // add constructor method bind
+    const class_name_snake_case = names.camelCaseToSnakeCase(allocator, class.name);
     try std.fmt.format(
         buffer.writer(),
         "var mbind_{s}_constructor: ?types.ConstructorFunc = null;\n",

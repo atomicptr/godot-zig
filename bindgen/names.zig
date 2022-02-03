@@ -1,9 +1,6 @@
 const std = @import("std");
 
-// TODO: move allocator into function args
-const allocator = std.heap.page_allocator;
-
-pub fn toZigConstant(name: []const u8) ![]const u8 {
+pub fn toZigConstant(allocator: std.mem.Allocator, name: []const u8) ![]const u8 {
     var buffer = std.ArrayList(u8).init(allocator);
     defer buffer.deinit();
 
@@ -18,11 +15,11 @@ pub fn toZigConstant(name: []const u8) ![]const u8 {
     return buffer.toOwnedSlice();
 }
 
-pub fn toZigFilename(name: []const u8) ![]const u8 {
+pub fn toZigFilename(allocator: std.mem.Allocator, name: []const u8) ![]const u8 {
     var buffer = std.ArrayList(u8).init(allocator);
     defer buffer.deinit();
 
-    const basename = try camelCaseToSnakeCase(name);
+    const basename = try camelCaseToSnakeCase(allocator, name);
     try std.fmt.format(
         buffer.writer(),
         "{s}.zig",
@@ -32,7 +29,7 @@ pub fn toZigFilename(name: []const u8) ![]const u8 {
     return buffer.toOwnedSlice();
 }
 
-pub fn camelCaseToSnakeCase(name: []const u8) ![]const u8 {
+pub fn camelCaseToSnakeCase(allocator: std.mem.Allocator, name: []const u8) ![]const u8 {
     var buffer = std.ArrayList(u8).init(allocator);
     defer buffer.deinit();
 
@@ -88,9 +85,11 @@ const UpperCaseSplitIterator = struct {
     }
 };
 
+const test_allocator = std.heap.page_allocator;
+
 test "convert godot constant names to Zig constant names" {
-    try std.testing.expectEqualStrings("MyVeryCoolConstantName", try toZigConstant("MY_VERY_COOL_CONSTANT_NAME"));
-    try std.testing.expectEqualStrings("PropertyUsageRestartIfChanged", try toZigConstant("PROPERTY_USAGE_RESTART_IF_CHANGED"));
+    try std.testing.expectEqualStrings("MyVeryCoolConstantName", try toZigConstant(test_allocator, "MY_VERY_COOL_CONSTANT_NAME"));
+    try std.testing.expectEqualStrings("PropertyUsageRestartIfChanged", try toZigConstant(test_allocator, "PROPERTY_USAGE_RESTART_IF_CHANGED"));
 }
 
 test "splitting a string on upper cases: mySuperGreatTest" {
@@ -128,12 +127,12 @@ test "splitting a string on upper cases: ARVRPositionalTracker" {
 }
 
 test "convert camel case string to snake case" {
-    try std.testing.expectEqualStrings("my_super_great_test", try camelCaseToSnakeCase("mySuperGreatTest"));
-    try std.testing.expectEqualStrings("urlresolver", try camelCaseToSnakeCase("URLResolver"));
-    try std.testing.expectEqualStrings("mesh_instance_3d", try camelCaseToSnakeCase("MeshInstance3D"));
-    try std.testing.expectEqualStrings("arvrpositional_tracker", try camelCaseToSnakeCase("ARVRPositionalTracker"));
+    try std.testing.expectEqualStrings("my_super_great_test", try camelCaseToSnakeCase(test_allocator, "mySuperGreatTest"));
+    try std.testing.expectEqualStrings("urlresolver", try camelCaseToSnakeCase(test_allocator, "URLResolver"));
+    try std.testing.expectEqualStrings("mesh_instance_3d", try camelCaseToSnakeCase(test_allocator, "MeshInstance3D"));
+    try std.testing.expectEqualStrings("arvrpositional_tracker", try camelCaseToSnakeCase(test_allocator, "ARVRPositionalTracker"));
 }
 
 test "convert godot class name to .zig filename" {
-    try std.testing.expectEqualStrings("mesh_instance_3d.zig", try toZigFilename("MeshInstance3D"));
+    try std.testing.expectEqualStrings("mesh_instance_3d.zig", try toZigFilename(test_allocator, "MeshInstance3D"));
 }
