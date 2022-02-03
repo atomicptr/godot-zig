@@ -124,7 +124,6 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
         \\        _ = api.core.?.godot_object_destroy.?(@ptrCast(*c_api.godot_object, self));
         \\    }}
         \\
-        \\
     , .{
         class_name_snake_case,
         class_name_snake_case,
@@ -145,11 +144,58 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
 }
 
 fn appendMethod(allocator: std.mem.Allocator, buffer: *std.ArrayList(u8), method: *const godot.Method, has_base_class: bool) !void {
-    _ = allocator;
     _ = has_base_class;
-    try buffer.appendSlice("    // Method: ");
-    try buffer.appendSlice(method.name);
-    try buffer.appendSlice("\n");
+
+    const method_name = try names.snakeCaseToCamelCase(allocator, method.name, false);
+    const return_type = try toZigType(allocator, method.return_type);
+
+    try std.fmt.format(buffer.writer(), "\n    pub fn {s}(self: *const Self", .{method_name});
+
+    for (method.arguments) |arg, i| {
+        if (i + 1 <= method.arguments.len) {
+            try buffer.appendSlice(", ");
+        }
+
+        const arg_type_name = try toZigType(allocator, arg.type_name);
+
+        try buffer.appendSlice(arg.name); // TODO: escape
+        try buffer.appendSlice(": ");
+
+        // if its a godot struct, make the argument a const pointer
+        if (std.mem.startsWith(u8, arg_type_name, "godot.")) {
+            try buffer.appendSlice("*const ");
+        }
+        try buffer.appendSlice(arg_type_name);
+    }
+
+    try std.fmt.format(buffer.writer(), ") {s} {{\n", .{return_type});
+
+    // TODO: method body
+    try buffer.appendSlice("        // here could be your method body\n");
+
+    try buffer.appendSlice("    }\n");
+}
+
+fn toZigType(allocator: std.mem.Allocator, name: []const u8) ![]const u8 {
+    if (std.mem.startsWith(u8, name, "enum")) {
+        return "i32";
+    }
+
+    inline for (.{ "bool", "int", "float", "void" }) |type_name| {
+        if (std.mem.eql(u8, name, type_name)) {
+            return name;
+        }
+    } else {
+        const prefix = "godot.";
+        return try concatString(allocator, prefix, name);
+    }
+}
+
+fn concatString(allocator: std.mem.Allocator, a: []const u8, b: []const u8) ![]u8 {
+    const res = try allocator.alloc(u8, a.len + b.len);
+    std.mem.copy(u8, res, a);
+    std.mem.copy(u8, res[a.len..], b);
+    return res;
 }
 
 pub fn createImportsFile(allocator: std.mem.Allocator, fileNames: []const u8) ![]const u8 {
