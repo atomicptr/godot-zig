@@ -33,6 +33,11 @@ pub fn godotNativeScriptInit(handle: *anyopaque) void {
     handler = handle;
 }
 
+pub fn godotGDNativeTerminate() void {
+    native = undefined;
+    core = undefined;
+}
+
 pub fn createConstructor(classname: []const u8) !GDConstructorFunc {
     if (core == null) {
         return Errors.GDNativeCoreApiNotInitialized;

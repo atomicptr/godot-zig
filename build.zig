@@ -18,7 +18,6 @@ pub fn build(b: *std.build.Builder) void {
     lib.addIncludeDir("./godot-headers");
     lib.linkLibC();
     lib.install();
-    deps.addAllTo(lib);
 
     // bindings generator
     const bindgen = b.addExecutable("godot-zig-bindgen", "bindgen/main.zig");

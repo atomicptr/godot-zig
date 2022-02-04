@@ -1,8 +1,21 @@
 .zigmod
 deps.zig
 
-# Created by https://www.toptal.com/developers/gitignore/api/windows,macos,linux,zig,visualstudiocode,intellij+all
-# Edit at https://www.toptal.com/developers/gitignore?templates=windows,macos,linux,zig,visualstudiocode,intellij+all
+# Created by https://www.toptal.com/developers/gitignore/api/windows,macos,linux,zig,visualstudiocode,intellij+all,godot
+# Edit at https://www.toptal.com/developers/gitignore?templates=windows,macos,linux,zig,visualstudiocode,intellij+all,godot
+
+### Godot ###
+# Godot-specific ignores
+.import/
+export.cfg
+export_presets.cfg
+
+# Imported translations (automatically generated from CSV files)
+*.translation
+
+# Mono-specific ignores
+.mono/
+data_*/
 
 ### Intellij+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
@@ -199,4 +212,4 @@ build/
 build-*/
 docgen_tmp/
 
-# End of https://www.toptal.com/developers/gitignore/api/windows,macos,linux,zig,visualstudiocode,intellij+all
+# End of https://www.toptal.com/developers/gitignore/api/windows,macos,linux,zig,visualstudiocode,intellij+all,godot
