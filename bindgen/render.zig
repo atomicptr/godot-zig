@@ -28,7 +28,6 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
     try std.fmt.format(
         buffer.writer(),
         \\const godot = @import("{s}");
-        \\const types = @import("../types.zig");
         \\const api = @import("../api.zig");
         \\const c_api = @import("../c_api.zig");
         \\
@@ -39,6 +38,7 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
         },
     );
 
+    // TODO: is this necessary? We could possibly just use godot.BaseClass instead...
     const has_base_class = class.base_class.len > 0;
     if (has_base_class) {
         try std.fmt.format(
@@ -80,7 +80,7 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
     const class_name_snake_case = names.camelCaseToSnakeCase(allocator, class.name);
     try std.fmt.format(
         buffer.writer(),
-        "var mbind_{s}_constructor: ?types.ConstructorFunc = null;\n",
+        "var mbind_{s}_constructor: ?fn () ?*c_api.godot_object = null;\n",
         .{
             class_name_snake_case,
         },
@@ -108,14 +108,16 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
     }
 
     // properties
-    try buffer.appendSlice("\n    //base: *BaseClass,\n");
+    if (has_base_class) {
+        try buffer.appendSlice("\n    base: *BaseClass,\n");
+    }
 
     // methods
     try std.fmt.format(buffer.writer(),
         \\
         \\    pub fn init() !*Self {{
         \\        if (mbind_{s}_constructor == null) {{
-        \\            mbind_{s}_constructor = api.createConstructor("{s}");
+        \\            mbind_{s}_constructor = try api.createConstructor("{s}");
         \\        }}
         \\        return api.createObject(Self, mbind_{s}_constructor.?);
         \\    }}
@@ -135,7 +137,7 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
         if (method.is_virtual) {
             continue;
         }
-        try appendMethod(allocator, &buffer, &method, has_base_class);
+        try appendMethod(allocator, &buffer, class.name, &method, has_base_class);
     }
 
     try buffer.appendSlice("};");
@@ -143,10 +145,17 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
     return buffer.toOwnedSlice();
 }
 
-fn appendMethod(allocator: std.mem.Allocator, buffer: *std.ArrayList(u8), method: *const godot.Method, has_base_class: bool) !void {
-    _ = has_base_class;
-
-    const method_name = try names.snakeCaseToCamelCase(allocator, method.name, false);
+fn appendMethod(
+    allocator: std.mem.Allocator,
+    buffer: *std.ArrayList(u8),
+    classname: []const u8,
+    method: *const godot.Method,
+    has_base_class: bool,
+) !void {
+    const method_name = try escapeName(
+        allocator,
+        try names.snakeCaseToCamelCase(allocator, method.name, false),
+    );
     const return_type = try toZigType(allocator, method.return_type);
 
     try std.fmt.format(buffer.writer(), "\n    pub fn {s}(self: *const Self", .{method_name});
@@ -158,7 +167,7 @@ fn appendMethod(allocator: std.mem.Allocator, buffer: *std.ArrayList(u8), method
 
         const arg_type_name = try toZigType(allocator, arg.type_name);
 
-        try buffer.appendSlice(arg.name); // TODO: escape
+        try buffer.appendSlice(try concatString(allocator, "arg_", arg.name));
         try buffer.appendSlice(": ");
 
         // if its a godot struct, make the argument a const pointer
@@ -168,10 +177,70 @@ fn appendMethod(allocator: std.mem.Allocator, buffer: *std.ArrayList(u8), method
         try buffer.appendSlice(arg_type_name);
     }
 
-    try std.fmt.format(buffer.writer(), ") {s} {{\n", .{return_type});
+    try std.fmt.format(buffer.writer(), ") !{s} {{\n", .{return_type});
 
-    // TODO: method body
-    try buffer.appendSlice("        // here could be your method body\n");
+    if (!has_base_class) {
+        try buffer.appendSlice("        _ = self;\n\n");
+    }
+
+    try std.fmt.format(buffer.writer(),
+        \\        if (mbind_{s} == null) {{
+        \\            mbind_{s} = try api.createMethod("{s}", "{s}");
+        \\        }}
+        \\
+        \\
+    , .{
+        method.name,
+        method.name,
+        classname,
+        method.name,
+    });
+
+    try buffer.appendSlice("        var f_result: ?*anyopaque = null;\n");
+
+    if (method.arguments.len > 0) {
+        try std.fmt.format(
+            buffer.writer(),
+            "        var f_args: [{d}]?*const anyopaque = []?*const anyopaque {{\n",
+            .{method.arguments.len},
+        );
+
+        for (method.arguments) |arg| {
+            const is_struct = std.mem.startsWith(u8, try toZigType(allocator, arg.type_name), "godot.");
+            const arg_name = try concatString(allocator, "arg_", arg.name);
+            try std.fmt.format(
+                buffer.writer(),
+                "            @ptrCast(*const anyopaque, {s}),\n",
+                .{try escapeName(allocator, if (is_struct) arg_name else try concatString(allocator, "*", arg_name))},
+            );
+        }
+
+        try buffer.appendSlice("        };\n\n");
+        try buffer.appendSlice("        var f_cargs: ?*?*const anyopaque = &f_args[0];\n\n");
+    } else {
+        try buffer.appendSlice("        var f_cargs: ?*?*const anyopaque = null;\n\n");
+    }
+
+    if (has_base_class) {
+        try buffer.appendSlice("        const f_base = @ptrCast(*c_api.godot_object, @alignCast(@alignOf(*c_api.godot_object), self.base));\n");
+    }
+
+    const base_param = if (has_base_class) "f_base" else "null";
+    try std.fmt.format(
+        buffer.writer(),
+        "        _ = api.core.?.godot_method_bind_ptrcall.?(mbind_{s}, {s}, f_cargs, f_result);\n",
+        .{
+            method.name,
+            base_param,
+        },
+    );
+
+    if (!std.mem.eql(u8, return_type, "void")) {
+        try std.fmt.format(buffer.writer(), "        return @ptrCast(*{s}, @alignCast(@alignOf(&{s}), f_result)).*;\n", .{
+            return_type,
+            return_type,
+        });
+    }
 
     try buffer.appendSlice("    }\n");
 }
@@ -181,14 +250,45 @@ fn toZigType(allocator: std.mem.Allocator, name: []const u8) ![]const u8 {
         return "i32";
     }
 
-    inline for (.{ "bool", "int", "float", "void" }) |type_name| {
+    const godot_types = .{ "bool", "i32", "f32", "void" };
+
+    inline for (.{ "bool", "int", "float", "void" }) |type_name, i| {
         if (std.mem.eql(u8, name, type_name)) {
-            return name;
+            return godot_types[i];
         }
     } else {
         const prefix = "godot.";
         return try concatString(allocator, prefix, name);
     }
+}
+
+fn escapeName(allocator: std.mem.Allocator, name: []const u8) ![]const u8 {
+    const escapees = .{
+        "var",
+        "section",
+        "error",
+        "align",
+        "use",
+        "resume",
+        "cancel",
+        "export",
+        "type",
+        "bool",
+        "init",
+        "api",
+    };
+
+    inline for (escapees) |kw| {
+        if (std.mem.eql(u8, name, kw)) {
+            return try concatString(
+                allocator,
+                name,
+                "_",
+            );
+        }
+    }
+
+    return name;
 }
 
 fn concatString(allocator: std.mem.Allocator, a: []const u8, b: []const u8) ![]u8 {

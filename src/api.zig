@@ -1,13 +1,13 @@
 const c_api = @import("c_api.zig");
-const types = @import("types.zig");
 
-const GodotZigErrors = error{
+const Errors = error{
     GDNativeCoreApiNotInitialized,
 };
 
 const GDNativeCoreApi = c_api.godot_gdnative_core_api_struct;
 const GDNativeExtNativeScriptApiStruct = c_api.godot_gdnative_ext_nativescript_api_struct;
 const GDNativeInitOptions = c_api.godot_gdnative_init_options;
+const GDConstructorFunc = fn () ?*c_api.godot_object;
 
 pub var core: ?*GDNativeCoreApi = null;
 pub var native: ?*GDNativeExtNativeScriptApiStruct = null;
@@ -33,17 +33,25 @@ pub fn godotNativeScriptInit(handle: *anyopaque) void {
     handler = handle;
 }
 
-pub fn createConstructor(classname: []const u8) !?types.ConstructorFunc {
+pub fn createConstructor(classname: []const u8) !GDConstructorFunc {
     if (core == null) {
-        return GodotZigErrors.GDNativeCoreApiNotInitialized;
+        return Errors.GDNativeCoreApiNotInitialized;
     }
 
     return @ptrCast(
-        types.ConstructorFunc,
+        fn () ?*c_api.godot_object,
         core.godot_get_class_constructor.?(classname),
     );
 }
 
-pub fn createObject(comptime T: type, constructor: types.ConstructorFunc) *T {
+pub fn createMethod(classname: []const u8, methodname: []const u8) !*c_api.godot_method_bind {
+    if (core == null) {
+        return Errors.GDNativeCoreApiNotInitialized;
+    }
+
+    return core.godot_method_bind_get_method.?(classname, methodname);
+}
+
+pub fn createObject(comptime T: type, constructor: GDConstructorFunc) *T {
     return @ptrCast(*T, @alignCast(@alignOf(*T), constructor()));
 }
