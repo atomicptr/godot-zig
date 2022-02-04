@@ -9,8 +9,8 @@ const GDNativeExtNativeScriptApiStruct = c_api.godot_gdnative_ext_nativescript_a
 const GDNativeInitOptions = c_api.godot_gdnative_init_options;
 const GDConstructorFunc = fn () ?*c_api.godot_object;
 
-pub var core: ?*GDNativeCoreApi = null;
-pub var native: ?*GDNativeExtNativeScriptApiStruct = null;
+pub var core: ?*const GDNativeCoreApi = null;
+pub var native: ?*const GDNativeExtNativeScriptApiStruct = null;
 
 var handler: ?*anyopaque = null;
 
@@ -19,10 +19,10 @@ pub fn godotGDNativeInit(options: *GDNativeInitOptions) void {
 
     var i: usize = 0;
 
-    while (i < core.num_extensions) : (i += 1) {
-        switch (core.extensions[i].type) {
+    while (i < core.?.num_extensions) : (i += 1) {
+        switch (core.?.extensions[i].*.type) {
             c_api.GDNATIVE_EXT_NATIVESCRIPT => {
-                native = @ptrCast(*GDNativeExtNativeScriptApiStruct, core.extensions[i]);
+                native = @ptrCast(*const GDNativeExtNativeScriptApiStruct, core.?.extensions[i]);
             },
             else => {},
         }

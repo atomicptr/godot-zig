@@ -19,17 +19,17 @@ pub const HelloWorld = struct {
 };
 
 export fn godot_nativescript_init(handle: *anyopaque) void {
-    std.debug.print("godot_nativescript_init()", .{});
+    std.debug.print("godot-zig: godot_nativescript_init()\n", .{});
     godot.api.godotNativeScriptInit(handle);
 }
 
 export fn godot_gdnative_init(options: *godot.c_api.godot_gdnative_init_options) void {
-    std.debug.print("godot_gdnative_init()", .{});
+    std.debug.print("godot-zig: godot_gdnative_init()\n", .{});
     godot.api.godotGDNativeInit(options);
 }
 
 export fn godot_gdnative_terminate(options: *godot.c_api.godot_gdnative_terminate_options) void {
     _ = options;
-    std.debug.print("godot_gdnative_terminate()", .{});
-    //godot.api.godotGDNativeTerminate();
+    std.debug.print("godot-zig: godot_gdnative_terminate()\n", .{});
+    godot.api.godotGDNativeTerminate();
 }
