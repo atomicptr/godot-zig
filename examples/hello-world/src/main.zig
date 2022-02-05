@@ -3,33 +3,36 @@ const godot = @import("godot-zig");
 
 pub const HelloWorld = struct {
     const Self = @This();
-    const BaseClass = godot.Node;
+    pub const BaseClass = godot.Node2D;
 
     base: *BaseClass,
 
     pub fn init(self: *Self) void {
         _ = self;
-        std.debug.print("Hello, World!", .{});
+        std.log.info("Hello, World!\n", .{});
     }
 
     pub fn _ready(self: *Self) void {
         _ = self;
-        std.debug.print("Ready!", .{});
+        std.log.info("Hello World is ready!\n", .{});
     }
 };
 
 export fn godot_nativescript_init(handle: *anyopaque) void {
-    std.debug.print("godot-zig: godot_nativescript_init()\n", .{});
-    godot.api.godotNativeScriptInit(handle);
+    std.log.info("godot-zig: godot_nativescript_init()\n", .{});
+    godot.initNativeScript(handle);
+    godot.registerClass(HelloWorld) catch |err| {
+        std.log.err("godot-zig: godot_nativescript_init: hello-world: {s}\n", .{err});
+    };
 }
 
 export fn godot_gdnative_init(options: *godot.c_api.godot_gdnative_init_options) void {
-    std.debug.print("godot-zig: godot_gdnative_init()\n", .{});
-    godot.api.godotGDNativeInit(options);
+    std.log.info("godot-zig: godot_gdnative_init()\n", .{});
+    godot.init(options);
 }
 
 export fn godot_gdnative_terminate(options: *godot.c_api.godot_gdnative_terminate_options) void {
     _ = options;
-    std.debug.print("godot-zig: godot_gdnative_terminate()\n", .{});
-    godot.api.godotGDNativeTerminate();
+    std.log.info("godot-zig: godot_gdnative_terminate()\n", .{});
+    godot.terminate();
 }

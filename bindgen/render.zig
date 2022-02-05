@@ -108,8 +108,16 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
     }
 
     // properties
+    try std.fmt.format(buffer.writer(),
+        \\
+        \\    // Pointers to zero-sized types are also zero-sized,
+        \\    // therefore we need to add some data to make it not zero-sized :)
+        \\    _data: u8,
+        \\
+    , .{});
+
     if (has_base_class) {
-        try buffer.appendSlice("\n    base: *BaseClass,\n");
+        try buffer.appendSlice("    base: *BaseClass,\n");
     }
 
     // methods
