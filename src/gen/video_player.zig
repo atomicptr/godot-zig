@@ -38,6 +38,9 @@ pub const VideoPlayer = struct {
     const Self = @This();
     const BaseClass = Control;
 
+    // Pointers to zero-sized types are also zero-sized,
+    // therefore we need to add some data to make it not zero-sized :)
+    _data: u8,
     base: *BaseClass,
 
     pub fn init() !*Self {

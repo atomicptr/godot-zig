@@ -15,6 +15,9 @@ pub const CSGPrimitive = struct {
     const Self = @This();
     const BaseClass = CSGShape;
 
+    // Pointers to zero-sized types are also zero-sized,
+    // therefore we need to add some data to make it not zero-sized :)
+    _data: u8,
     base: *BaseClass,
 
     pub fn init() !*Self {

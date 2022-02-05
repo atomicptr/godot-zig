@@ -50,6 +50,10 @@ var mbind_object_constructor: ?fn () ?*c_api.godot_object = null;
 pub const Object = struct {
     const Self = @This();
 
+    // Pointers to zero-sized types are also zero-sized,
+    // therefore we need to add some data to make it not zero-sized :)
+    _data: u8,
+
     pub fn init() !*Self {
         if (mbind_object_constructor == null) {
             mbind_object_constructor = try api.createConstructor("Object");
