@@ -38,24 +38,6 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
         },
     );
 
-    // TODO: is this necessary? We could possibly just use godot.BaseClass instead...
-    const has_base_class = class.base_class.len > 0;
-    if (has_base_class) {
-        try std.fmt.format(
-            buffer.writer(),
-            \\// base class
-            \\const {s} = @import("{s}").{s};
-            \\
-            \\
-        ,
-            .{
-                class.base_class,
-                try names.toZigFilename(allocator, class.base_class),
-                class.base_class,
-            },
-        );
-    }
-
     // add method bindings
     const has_methods = class.methods.len > 0;
     if (has_methods) {
@@ -97,10 +79,11 @@ pub fn createClassFile(allocator: std.mem.Allocator, class: *const godot.Class) 
 
     try buffer.appendSlice("    const Self = @This();\n");
 
+    const has_base_class = class.base_class.len > 0;
     if (has_base_class) {
         try std.fmt.format(
             buffer.writer(),
-            "    const BaseClass = {s};\n",
+            "    pub const BaseClass = godot.{s};\n",
             .{
                 class.base_class,
             },
