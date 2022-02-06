@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const PhysicsServer = @import("physics_server.zig").PhysicsServer;
-
 var mbind_bullet_physics_server_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const BulletPhysicsServer = struct {
     const Self = @This();
-    const BaseClass = PhysicsServer;
+    pub const BaseClass = godot.PhysicsServer;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

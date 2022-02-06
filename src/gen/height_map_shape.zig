@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Shape = @import("shape.zig").Shape;
-
 // method bindings
 var mbind_get_map_data: ?*c_api.godot_method_bind = null;
 var mbind_get_map_depth: ?*c_api.godot_method_bind = null;
@@ -17,7 +14,7 @@ var mbind_height_map_shape_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const HeightMapShape = struct {
     const Self = @This();
-    const BaseClass = Shape;
+    pub const BaseClass = godot.Shape;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

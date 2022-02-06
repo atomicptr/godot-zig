@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const WebSocketMultiplayerPeer = @import("web_socket_multiplayer_peer.zig").WebSocketMultiplayerPeer;
-
 // method bindings
 var mbind_disconnect_peer: ?*c_api.godot_method_bind = null;
 var mbind_get_bind_ip: ?*c_api.godot_method_bind = null;
@@ -28,7 +25,7 @@ var mbind_web_socket_server_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const WebSocketServer = struct {
     const Self = @This();
-    const BaseClass = WebSocketMultiplayerPeer;
+    pub const BaseClass = godot.WebSocketMultiplayerPeer;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

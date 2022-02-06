@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const VBoxContainer = @import("vbox_container.zig").VBoxContainer;
-
 // method bindings
 var mbind_can_drop_data_fw: ?*c_api.godot_method_bind = null;
 var mbind_drop_data_fw: ?*c_api.godot_method_bind = null;
@@ -15,7 +12,7 @@ var mbind_file_system_dock_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const FileSystemDock = struct {
     const Self = @This();
-    const BaseClass = VBoxContainer;
+    pub const BaseClass = godot.VBoxContainer;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

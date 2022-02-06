@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Popup = @import("popup.zig").Popup;
-
 // method bindings
 var mbind_get_close_button: ?*c_api.godot_method_bind = null;
 var mbind_get_resizable: ?*c_api.godot_method_bind = null;
@@ -16,7 +13,7 @@ var mbind_window_dialog_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const WindowDialog = struct {
     const Self = @This();
-    const BaseClass = Popup;
+    pub const BaseClass = godot.Popup;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

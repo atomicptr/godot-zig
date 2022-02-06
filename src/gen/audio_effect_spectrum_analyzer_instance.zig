@@ -3,16 +3,13 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const AudioEffectInstance = @import("audio_effect_instance.zig").AudioEffectInstance;
-
 // method bindings
 var mbind_get_magnitude_for_frequency_range: ?*c_api.godot_method_bind = null;
 var mbind_audio_effect_spectrum_analyzer_instance_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const AudioEffectSpectrumAnalyzerInstance = struct {
     const Self = @This();
-    const BaseClass = AudioEffectInstance;
+    pub const BaseClass = godot.AudioEffectInstance;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

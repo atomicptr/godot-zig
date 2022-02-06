@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const VisualInstance = @import("visual_instance.zig").VisualInstance;
-
 var mbind_root_motion_view_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const RootMotionView = struct {
     const Self = @This();
-    const BaseClass = VisualInstance;
+    pub const BaseClass = godot.VisualInstance;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

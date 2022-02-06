@@ -3,16 +3,13 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const ScrollContainer = @import("scroll_container.zig").ScrollContainer;
-
 // method bindings
 var mbind_refresh: ?*c_api.godot_method_bind = null;
 var mbind_editor_inspector_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const EditorInspector = struct {
     const Self = @This();
-    const BaseClass = ScrollContainer;
+    pub const BaseClass = godot.ScrollContainer;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

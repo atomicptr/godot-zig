@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Mesh = @import("mesh.zig").Mesh;
-
 // method bindings
 var mbind_get_custom_aabb: ?*c_api.godot_method_bind = null;
 var mbind_get_flip_faces: ?*c_api.godot_method_bind = null;
@@ -18,7 +15,7 @@ var mbind_primitive_mesh_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const PrimitiveMesh = struct {
     const Self = @This();
-    const BaseClass = Mesh;
+    pub const BaseClass = godot.Mesh;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

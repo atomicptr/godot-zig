@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Node2D = @import("node_2d.zig").Node2D;
-
 // method bindings
 var mbind_create_shape_owner: ?*c_api.godot_method_bind = null;
 var mbind_get_collision_layer: ?*c_api.godot_method_bind = null;
@@ -41,7 +38,7 @@ var mbind_collision_object_2d_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const CollisionObject2D = struct {
     const Self = @This();
-    const BaseClass = Node2D;
+    pub const BaseClass = godot.Node2D;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

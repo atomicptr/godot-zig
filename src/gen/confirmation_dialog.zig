@@ -3,16 +3,13 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const AcceptDialog = @import("accept_dialog.zig").AcceptDialog;
-
 // method bindings
 var mbind_get_cancel: ?*c_api.godot_method_bind = null;
 var mbind_confirmation_dialog_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const ConfirmationDialog = struct {
     const Self = @This();
-    const BaseClass = AcceptDialog;
+    pub const BaseClass = godot.AcceptDialog;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

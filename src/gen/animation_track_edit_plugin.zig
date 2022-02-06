@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Reference = @import("reference.zig").Reference;
-
 var mbind_animation_track_edit_plugin_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const AnimationTrackEditPlugin = struct {
     const Self = @This();
-    const BaseClass = Reference;
+    pub const BaseClass = godot.Reference;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

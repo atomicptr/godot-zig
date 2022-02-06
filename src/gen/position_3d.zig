@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Spatial = @import("spatial.zig").Spatial;
-
 var mbind_position_3d_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const Position3D = struct {
     const Self = @This();
-    const BaseClass = Spatial;
+    pub const BaseClass = godot.Spatial;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

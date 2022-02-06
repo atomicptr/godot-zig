@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Joint = @import("joint.zig").Joint;
-
 // method bindings
 var mbind_get_param: ?*c_api.godot_method_bind = null;
 var mbind_set_param: ?*c_api.godot_method_bind = null;
@@ -13,7 +10,7 @@ var mbind_pin_joint_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const PinJoint = struct {
     const Self = @This();
-    const BaseClass = Joint;
+    pub const BaseClass = godot.Joint;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

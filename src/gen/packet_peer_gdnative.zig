@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const PacketPeer = @import("packet_peer.zig").PacketPeer;
-
 var mbind_packet_peer_gdnative_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const PacketPeerGDNative = struct {
     const Self = @This();
-    const BaseClass = PacketPeer;
+    pub const BaseClass = godot.PacketPeer;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

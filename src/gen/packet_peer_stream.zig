@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const PacketPeer = @import("packet_peer.zig").PacketPeer;
-
 // method bindings
 var mbind_get_input_buffer_max_size: ?*c_api.godot_method_bind = null;
 var mbind_get_output_buffer_max_size: ?*c_api.godot_method_bind = null;
@@ -17,7 +14,7 @@ var mbind_packet_peer_stream_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const PacketPeerStream = struct {
     const Self = @This();
-    const BaseClass = PacketPeer;
+    pub const BaseClass = godot.PacketPeer;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

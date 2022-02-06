@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const VisualScriptNode = @import("visual_script_node.zig").VisualScriptNode;
-
 // method bindings
 var mbind_get_action_mode: ?*c_api.godot_method_bind = null;
 var mbind_get_action_name: ?*c_api.godot_method_bind = null;
@@ -15,7 +12,7 @@ var mbind_visual_script_input_action_constructor: ?fn () ?*c_api.godot_object = 
 
 pub const VisualScriptInputAction = struct {
     const Self = @This();
-    const BaseClass = VisualScriptNode;
+    pub const BaseClass = godot.VisualScriptNode;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

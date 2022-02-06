@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const ARVRInterface = @import("arvrinterface.zig").ARVRInterface;
-
 var mbind_arvrinterface_gdnative_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const ARVRInterfaceGDNative = struct {
     const Self = @This();
-    const BaseClass = ARVRInterface;
+    pub const BaseClass = godot.ARVRInterface;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

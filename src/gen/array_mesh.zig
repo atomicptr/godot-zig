@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Mesh = @import("mesh.zig").Mesh;
-
 // method bindings
 var mbind_add_blend_shape: ?*c_api.godot_method_bind = null;
 var mbind_add_surface_from_arrays: ?*c_api.godot_method_bind = null;
@@ -33,7 +30,7 @@ var mbind_array_mesh_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const ArrayMesh = struct {
     const Self = @This();
-    const BaseClass = Mesh;
+    pub const BaseClass = godot.Mesh;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

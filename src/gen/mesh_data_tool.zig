@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Reference = @import("reference.zig").Reference;
-
 // method bindings
 var mbind_clear: ?*c_api.godot_method_bind = null;
 var mbind_commit_to_surface: ?*c_api.godot_method_bind = null;
@@ -49,7 +46,7 @@ var mbind_mesh_data_tool_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const MeshDataTool = struct {
     const Self = @This();
-    const BaseClass = Reference;
+    pub const BaseClass = godot.Reference;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

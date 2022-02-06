@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Resource = @import("resource.zig").Resource;
-
 // method bindings
 var mbind_get_config_file: ?*c_api.godot_method_bind = null;
 var mbind_get_current_dependencies: ?*c_api.godot_method_bind = null;
@@ -23,7 +20,7 @@ var mbind_gdnative_library_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const GDNativeLibrary = struct {
     const Self = @This();
-    const BaseClass = Resource;
+    pub const BaseClass = godot.Resource;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

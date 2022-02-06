@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Range = @import("range.zig").Range;
-
 // method bindings
 var mbind_get_fill_degrees: ?*c_api.godot_method_bind = null;
 var mbind_get_fill_mode: ?*c_api.godot_method_bind = null;
@@ -37,7 +34,7 @@ var mbind_texture_progress_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const TextureProgress = struct {
     const Self = @This();
-    const BaseClass = Range;
+    pub const BaseClass = godot.Range;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

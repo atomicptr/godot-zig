@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Joint2D = @import("joint_2d.zig").Joint2D;
-
 // method bindings
 var mbind_get_damping: ?*c_api.godot_method_bind = null;
 var mbind_get_length: ?*c_api.godot_method_bind = null;
@@ -19,7 +16,7 @@ var mbind_damped_spring_joint_2d_constructor: ?fn () ?*c_api.godot_object = null
 
 pub const DampedSpringJoint2D = struct {
     const Self = @This();
-    const BaseClass = Joint2D;
+    pub const BaseClass = godot.Joint2D;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

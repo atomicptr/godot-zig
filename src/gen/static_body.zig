@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const PhysicsBody = @import("physics_body.zig").PhysicsBody;
-
 // method bindings
 var mbind_get_bounce: ?*c_api.godot_method_bind = null;
 var mbind_get_constant_angular_velocity: ?*c_api.godot_method_bind = null;
@@ -21,7 +18,7 @@ var mbind_static_body_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const StaticBody = struct {
     const Self = @This();
-    const BaseClass = PhysicsBody;
+    pub const BaseClass = godot.PhysicsBody;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

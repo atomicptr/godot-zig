@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Object = @import("object.zig").Object;
-
 // method bindings
 var mbind_add_bus: ?*c_api.godot_method_bind = null;
 var mbind_add_bus_effect: ?*c_api.godot_method_bind = null;
@@ -57,7 +54,7 @@ var mbind_audio_server_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const AudioServer = struct {
     const Self = @This();
-    const BaseClass = Object;
+    pub const BaseClass = godot.Object;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

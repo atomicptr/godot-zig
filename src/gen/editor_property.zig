@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Container = @import("container.zig").Container;
-
 // method bindings
 var mbind_add_focusable: ?*c_api.godot_method_bind = null;
 var mbind_emit_changed: ?*c_api.godot_method_bind = null;
@@ -29,7 +26,7 @@ var mbind_editor_property_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const EditorProperty = struct {
     const Self = @This();
-    const BaseClass = Container;
+    pub const BaseClass = godot.Container;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

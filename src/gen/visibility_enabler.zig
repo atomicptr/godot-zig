@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const VisibilityNotifier = @import("visibility_notifier.zig").VisibilityNotifier;
-
 // method bindings
 var mbind_is_enabler_enabled: ?*c_api.godot_method_bind = null;
 var mbind_set_enabler: ?*c_api.godot_method_bind = null;
@@ -13,7 +10,7 @@ var mbind_visibility_enabler_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const VisibilityEnabler = struct {
     const Self = @This();
-    const BaseClass = VisibilityNotifier;
+    pub const BaseClass = godot.VisibilityNotifier;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

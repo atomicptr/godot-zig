@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const WebRTCPeerConnection = @import("web_rtcpeer_connection.zig").WebRTCPeerConnection;
-
 var mbind_web_rtcpeer_connection_gdnative_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const WebRTCPeerConnectionGDNative = struct {
     const Self = @This();
-    const BaseClass = WebRTCPeerConnection;
+    pub const BaseClass = godot.WebRTCPeerConnection;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const CSGPrimitive = @import("csgprimitive.zig").CSGPrimitive;
-
 // method bindings
 var mbind_get_height: ?*c_api.godot_method_bind = null;
 var mbind_get_material: ?*c_api.godot_method_bind = null;
@@ -23,7 +20,7 @@ var mbind_csgcylinder_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const CSGCylinder = struct {
     const Self = @This();
-    const BaseClass = CSGPrimitive;
+    pub const BaseClass = godot.CSGPrimitive;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

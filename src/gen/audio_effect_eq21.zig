@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const AudioEffectEQ = @import("audio_effect_eq.zig").AudioEffectEQ;
-
 var mbind_audio_effect_eq21_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const AudioEffectEQ21 = struct {
     const Self = @This();
-    const BaseClass = AudioEffectEQ;
+    pub const BaseClass = godot.AudioEffectEQ;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

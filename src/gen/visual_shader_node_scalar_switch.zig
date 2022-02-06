@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const VisualShaderNodeSwitch = @import("visual_shader_node_switch.zig").VisualShaderNodeSwitch;
-
 var mbind_visual_shader_node_scalar_switch_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const VisualShaderNodeScalarSwitch = struct {
     const Self = @This();
-    const BaseClass = VisualShaderNodeSwitch;
+    pub const BaseClass = godot.VisualShaderNodeSwitch;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

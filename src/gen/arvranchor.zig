@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Spatial = @import("spatial.zig").Spatial;
-
 // method bindings
 var mbind_get_anchor_id: ?*c_api.godot_method_bind = null;
 var mbind_get_anchor_name: ?*c_api.godot_method_bind = null;
@@ -18,7 +15,7 @@ var mbind_arvranchor_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const ARVRAnchor = struct {
     const Self = @This();
-    const BaseClass = Spatial;
+    pub const BaseClass = godot.Spatial;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

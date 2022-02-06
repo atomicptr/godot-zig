@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Node = @import("node.zig").Node;
-
 // method bindings
 var mbind_get_canvas: ?*c_api.godot_method_bind = null;
 var mbind_get_custom_viewport: ?*c_api.godot_method_bind = null;
@@ -30,7 +27,7 @@ var mbind_canvas_layer_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const CanvasLayer = struct {
     const Self = @This();
-    const BaseClass = Node;
+    pub const BaseClass = godot.Node;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

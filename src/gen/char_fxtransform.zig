@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Reference = @import("reference.zig").Reference;
-
 // method bindings
 var mbind_get_absolute_index: ?*c_api.godot_method_bind = null;
 var mbind_get_character: ?*c_api.godot_method_bind = null;
@@ -27,7 +24,7 @@ var mbind_char_fxtransform_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const CharFXTransform = struct {
     const Self = @This();
-    const BaseClass = Reference;
+    pub const BaseClass = godot.Reference;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

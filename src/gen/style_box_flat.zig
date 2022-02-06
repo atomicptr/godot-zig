@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const StyleBox = @import("style_box.zig").StyleBox;
-
 // method bindings
 var mbind_get_aa_size: ?*c_api.godot_method_bind = null;
 var mbind_get_bg_color: ?*c_api.godot_method_bind = null;
@@ -43,7 +40,7 @@ var mbind_style_box_flat_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const StyleBoxFlat = struct {
     const Self = @This();
-    const BaseClass = StyleBox;
+    pub const BaseClass = godot.StyleBox;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

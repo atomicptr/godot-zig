@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const VisualInstance = @import("visual_instance.zig").VisualInstance;
-
 // method bindings
 var mbind_are_shadows_enabled: ?*c_api.godot_method_bind = null;
 var mbind_get_cull_mask: ?*c_api.godot_method_bind = null;
@@ -35,7 +32,7 @@ var mbind_reflection_probe_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const ReflectionProbe = struct {
     const Self = @This();
-    const BaseClass = VisualInstance;
+    pub const BaseClass = godot.VisualInstance;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

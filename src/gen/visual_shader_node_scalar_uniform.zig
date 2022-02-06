@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const VisualShaderNodeUniform = @import("visual_shader_node_uniform.zig").VisualShaderNodeUniform;
-
 var mbind_visual_shader_node_scalar_uniform_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const VisualShaderNodeScalarUniform = struct {
     const Self = @This();
-    const BaseClass = VisualShaderNodeUniform;
+    pub const BaseClass = godot.VisualShaderNodeUniform;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

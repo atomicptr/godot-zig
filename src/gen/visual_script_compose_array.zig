@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const VisualScriptLists = @import("visual_script_lists.zig").VisualScriptLists;
-
 var mbind_visual_script_compose_array_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const VisualScriptComposeArray = struct {
     const Self = @This();
-    const BaseClass = VisualScriptLists;
+    pub const BaseClass = godot.VisualScriptLists;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

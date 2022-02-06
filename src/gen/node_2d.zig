@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const CanvasItem = @import("canvas_item.zig").CanvasItem;
-
 // method bindings
 var mbind_apply_scale: ?*c_api.godot_method_bind = null;
 var mbind_get_angle_to: ?*c_api.godot_method_bind = null;
@@ -44,7 +41,7 @@ var mbind_node_2d_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const Node2D = struct {
     const Self = @This();
-    const BaseClass = CanvasItem;
+    pub const BaseClass = godot.CanvasItem;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

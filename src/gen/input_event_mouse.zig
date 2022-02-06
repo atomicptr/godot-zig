@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const InputEventWithModifiers = @import("input_event_with_modifiers.zig").InputEventWithModifiers;
-
 // method bindings
 var mbind_get_button_mask: ?*c_api.godot_method_bind = null;
 var mbind_get_global_position: ?*c_api.godot_method_bind = null;
@@ -17,7 +14,7 @@ var mbind_input_event_mouse_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const InputEventMouse = struct {
     const Self = @This();
-    const BaseClass = InputEventWithModifiers;
+    pub const BaseClass = godot.InputEventWithModifiers;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

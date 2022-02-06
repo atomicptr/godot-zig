@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Sky = @import("sky.zig").Sky;
-
 // method bindings
 var mbind_get_ground_bottom_color: ?*c_api.godot_method_bind = null;
 var mbind_get_ground_curve: ?*c_api.godot_method_bind = null;
@@ -43,7 +40,7 @@ var mbind_procedural_sky_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const ProceduralSky = struct {
     const Self = @This();
-    const BaseClass = Sky;
+    pub const BaseClass = godot.Sky;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

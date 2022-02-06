@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const GeometryInstance = @import("geometry_instance.zig").GeometryInstance;
-
 // method bindings
 var mbind_generate_triangle_mesh: ?*c_api.godot_method_bind = null;
 var mbind_get_alpha_cut_mode: ?*c_api.godot_method_bind = null;
@@ -35,7 +32,7 @@ var mbind_sprite_base_3d_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const SpriteBase3D = struct {
     const Self = @This();
-    const BaseClass = GeometryInstance;
+    pub const BaseClass = godot.GeometryInstance;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

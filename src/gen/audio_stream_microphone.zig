@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const AudioStream = @import("audio_stream.zig").AudioStream;
-
 var mbind_audio_stream_microphone_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const AudioStreamMicrophone = struct {
     const Self = @This();
-    const BaseClass = AudioStream;
+    pub const BaseClass = godot.AudioStream;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

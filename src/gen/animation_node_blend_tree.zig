@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const AnimationRootNode = @import("animation_root_node.zig").AnimationRootNode;
-
 // method bindings
 var mbind_add_node: ?*c_api.godot_method_bind = null;
 var mbind_connect_node: ?*c_api.godot_method_bind = null;
@@ -22,7 +19,7 @@ var mbind_animation_node_blend_tree_constructor: ?fn () ?*c_api.godot_object = n
 
 pub const AnimationNodeBlendTree = struct {
     const Self = @This();
-    const BaseClass = AnimationRootNode;
+    pub const BaseClass = godot.AnimationRootNode;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

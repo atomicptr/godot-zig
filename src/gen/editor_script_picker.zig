@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const EditorResourcePicker = @import("editor_resource_picker.zig").EditorResourcePicker;
-
 // method bindings
 var mbind_get_script_owner: ?*c_api.godot_method_bind = null;
 var mbind_set_script_owner: ?*c_api.godot_method_bind = null;
@@ -13,7 +10,7 @@ var mbind_editor_script_picker_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const EditorScriptPicker = struct {
     const Self = @This();
-    const BaseClass = EditorResourcePicker;
+    pub const BaseClass = godot.EditorResourcePicker;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

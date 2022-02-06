@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const EditorSceneImporter = @import("editor_scene_importer.zig").EditorSceneImporter;
-
 var mbind_editor_scene_importer_gltf_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const EditorSceneImporterGLTF = struct {
     const Self = @This();
-    const BaseClass = EditorSceneImporter;
+    pub const BaseClass = godot.EditorSceneImporter;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

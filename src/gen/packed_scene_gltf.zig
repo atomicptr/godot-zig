@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const PackedScene = @import("packed_scene.zig").PackedScene;
-
 // method bindings
 var mbind_export_gltf: ?*c_api.godot_method_bind = null;
 var mbind_import_gltf_scene: ?*c_api.godot_method_bind = null;
@@ -14,7 +11,7 @@ var mbind_packed_scene_gltf_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const PackedSceneGLTF = struct {
     const Self = @This();
-    const BaseClass = PackedScene;
+    pub const BaseClass = godot.PackedScene;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

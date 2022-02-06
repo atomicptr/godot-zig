@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Button = @import("button.zig").Button;
-
 // method bindings
 var mbind_add_icon_item: ?*c_api.godot_method_bind = null;
 var mbind_add_item: ?*c_api.godot_method_bind = null;
@@ -33,7 +30,7 @@ var mbind_option_button_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const OptionButton = struct {
     const Self = @This();
-    const BaseClass = Button;
+    pub const BaseClass = godot.Button;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Input = @import("input.zig").Input;
-
 var mbind_input_default_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const InputDefault = struct {
     const Self = @This();
-    const BaseClass = Input;
+    pub const BaseClass = godot.Input;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

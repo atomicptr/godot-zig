@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Shape2D = @import("shape_2d.zig").Shape2D;
-
 // method bindings
 var mbind_get_extents: ?*c_api.godot_method_bind = null;
 var mbind_set_extents: ?*c_api.godot_method_bind = null;
@@ -13,7 +10,7 @@ var mbind_rectangle_shape_2d_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const RectangleShape2D = struct {
     const Self = @This();
-    const BaseClass = Shape2D;
+    pub const BaseClass = godot.Shape2D;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

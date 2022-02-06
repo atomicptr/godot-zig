@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const AnimationNode = @import("animation_node.zig").AnimationNode;
-
 // method bindings
 var mbind_get_cross_fade_time: ?*c_api.godot_method_bind = null;
 var mbind_get_enabled_inputs: ?*c_api.godot_method_bind = null;
@@ -19,7 +16,7 @@ var mbind_animation_node_transition_constructor: ?fn () ?*c_api.godot_object = n
 
 pub const AnimationNodeTransition = struct {
     const Self = @This();
-    const BaseClass = AnimationNode;
+    pub const BaseClass = godot.AnimationNode;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

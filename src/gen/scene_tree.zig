@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const MainLoop = @import("main_loop.zig").MainLoop;
-
 // method bindings
 var mbind_call_group: ?*c_api.godot_method_bind = null;
 var mbind_call_group_flags: ?*c_api.godot_method_bind = null;
@@ -58,7 +55,7 @@ var mbind_scene_tree_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const SceneTree = struct {
     const Self = @This();
-    const BaseClass = MainLoop;
+    pub const BaseClass = godot.MainLoop;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

@@ -3,14 +3,11 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Slider = @import("slider.zig").Slider;
-
 var mbind_vslider_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const VSlider = struct {
     const Self = @This();
-    const BaseClass = Slider;
+    pub const BaseClass = godot.Slider;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

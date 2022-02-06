@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const AudioStreamPlaybackResampled = @import("audio_stream_playback_resampled.zig").AudioStreamPlaybackResampled;
-
 // method bindings
 var mbind_can_push_buffer: ?*c_api.godot_method_bind = null;
 var mbind_clear_buffer: ?*c_api.godot_method_bind = null;
@@ -17,7 +14,7 @@ var mbind_audio_stream_generator_playback_constructor: ?fn () ?*c_api.godot_obje
 
 pub const AudioStreamGeneratorPlayback = struct {
     const Self = @This();
-    const BaseClass = AudioStreamPlaybackResampled;
+    pub const BaseClass = godot.AudioStreamPlaybackResampled;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

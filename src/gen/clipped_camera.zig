@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Camera = @import("camera.zig").Camera;
-
 // method bindings
 var mbind_add_exception: ?*c_api.godot_method_bind = null;
 var mbind_add_exception_rid: ?*c_api.godot_method_bind = null;
@@ -29,7 +26,7 @@ var mbind_clipped_camera_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const ClippedCamera = struct {
     const Self = @This();
-    const BaseClass = Camera;
+    pub const BaseClass = godot.Camera;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

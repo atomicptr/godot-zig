@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const VisualShaderNode = @import("visual_shader_node.zig").VisualShaderNode;
-
 // method bindings
 var mbind_add_input_port: ?*c_api.godot_method_bind = null;
 var mbind_add_output_port: ?*c_api.godot_method_bind = null;
@@ -34,7 +31,7 @@ var mbind_visual_shader_node_group_base_constructor: ?fn () ?*c_api.godot_object
 
 pub const VisualShaderNodeGroupBase = struct {
     const Self = @This();
-    const BaseClass = VisualShaderNode;
+    pub const BaseClass = godot.VisualShaderNode;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)

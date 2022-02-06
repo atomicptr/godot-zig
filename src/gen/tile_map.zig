@@ -3,9 +3,6 @@ const godot = @import("__import.zig");
 const api = @import("../api.zig");
 const c_api = @import("../c_api.zig");
 
-// base class
-const Node2D = @import("node_2d.zig").Node2D;
-
 // method bindings
 var mbind_clear: ?*c_api.godot_method_bind = null;
 var mbind_fix_invalid_tiles: ?*c_api.godot_method_bind = null;
@@ -71,7 +68,7 @@ var mbind_tile_map_constructor: ?fn () ?*c_api.godot_object = null;
 
 pub const TileMap = struct {
     const Self = @This();
-    const BaseClass = Node2D;
+    pub const BaseClass = godot.Node2D;
 
     // Pointers to zero-sized types are also zero-sized,
     // therefore we need to add some data to make it not zero-sized :)
