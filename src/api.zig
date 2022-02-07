@@ -18,6 +18,7 @@ const InstanceDestroyFunc = fn (?*c_api.godot_object, ?*anyopaque, ?*anyopaque) 
 pub var core: ?*const GDNativeCoreApi = null;
 pub var native: ?*const GDNativeExtNativeScriptApiStruct = null;
 pub var handle: ?*anyopaque = null;
+const allocator = std.heap.c_allocator;
 
 /// Initialize native script, to be called in "godot_nativescript_init"
 pub fn initNativeScript(nativescript_handle: *anyopaque) void {
@@ -57,8 +58,6 @@ pub fn registerClass(comptime T: type) !void {
         return Errors.InvalidGodotClassNoBaseField;
     }
 
-    const allocator = std.heap.c_allocator;
-
     const class_name = @typeName(T);
 
     const BaseClassType = try baseClassType(T);
@@ -93,8 +92,7 @@ pub fn registerClass(comptime T: type) !void {
 
     std.log.info("godot-zig: registered class {s}({s})\n", .{ class_name, base_class_name });
 
-    // TODO: automatically register every pub function
-    // TODO: figure out how to properly register fields with Godot for the inspector
+    // TODO: figure out how i want to properly register functions/properties
 }
 
 fn ClassRegistrationBuilder(comptime T: type) type {
@@ -141,6 +139,83 @@ fn baseClassType(comptime T: type) !type {
     return Errors.InvalidGodotClassNoPublicBaseClassDeclaration;
 }
 
+pub fn registerMethod(comptime T: type, comptime F: anytype, comptime methodname: []const u8) !void {
+    if (native == null) {
+        return Errors.NativeScriptApiNotInitialized;
+    }
+
+    const classname = @typeName(T);
+
+    const WrappedFunc = FunctionWrapper(T, F);
+
+    var instance_method = c_api.godot_instance_method{
+        .method = WrappedFunc.call_function,
+        .method_data = unsafeCast(*anyopaque, &F),
+        .free_func = null,
+    };
+
+    var attributes = c_api.godot_method_attributes{
+        .rpc_type = c_api.GODOT_METHOD_RPC_MODE_DISABLED,
+    };
+
+    var c_class_name = try std.cstr.addNullByte(allocator, classname);
+    defer allocator.free(c_class_name);
+    var c_method_name = try std.cstr.addNullByte(allocator, methodname);
+    defer allocator.free(c_method_name);
+
+    native.?.godot_nativescript_register_method.?(
+        handle,
+        c_class_name.ptr,
+        c_method_name.ptr,
+        attributes,
+        instance_method,
+    );
+
+    std.log.info("godot-zig: registered function {s} for class {s}\n", .{ methodname, classname });
+}
+
+fn FunctionWrapper(comptime T: type, comptime F: anytype) type {
+    return struct {
+        fn call_function(object: ?*c_api.godot_object, data: ?*const anyopaque, userdata: ?*anyopaque, num: c_int, cargs: ?[*]?[*]c_api.godot_variant) callconv(.C) c_api.godot_variant {
+            _ = userdata;
+
+            const FuncType = @TypeOf(F);
+
+            var result: c_api.godot_variant = undefined;
+
+            var func = @ptrCast(*const FuncType, @alignCast(@alignOf(FuncType), data));
+
+            const FuncArgs = std.meta.ArgsTuple(FuncType);
+            var func_args: FuncArgs = undefined;
+
+            var args: []?[*]c_api.godot_variant = undefined;
+            if (cargs != null) {
+                args = cargs.?[0..@intCast(usize, num)];
+            }
+
+            // TODO: actually put result of @call into result
+            // TODO: if variant is an object use godot_nativescript_get_userdata
+
+            const func_type_args = @typeInfo(FuncType).Fn.args;
+
+            inline for (func_type_args) |fn_type_arg, i| {
+                const ArgType = fn_type_arg.arg_type.?;
+
+                // TODO: check if the first object is actually T, because there might be a case where that is not the case...
+                if (i == 0) {
+                    func_args[i] = @ptrCast(*T, @alignCast(@alignOf(T), object.?));
+                } else {
+                    func_args[i] = @ptrCast(ArgType, @alignCast(@alignOf(ArgType), args[i].?));
+                }
+            }
+
+            _ = @call(.{}, func.*, func_args);
+
+            return result;
+        }
+    };
+}
+
 pub fn createConstructor(classname: []const u8) !GDConstructorFunc {
     if (core == null) {
         return Errors.GDNativeCoreApiNotInitialized;
@@ -162,4 +237,12 @@ pub fn createMethod(classname: []const u8, methodname: []const u8) !*c_api.godot
 
 pub fn createObject(comptime T: type, constructor: GDConstructorFunc) *T {
     return @ptrCast(*T, @alignCast(@alignOf(*T), constructor()));
+}
+
+fn unsafeCast(comptime T: type, ptr: anytype) T {
+    comptime std.debug.assert(@sizeOf(T) == @sizeOf(@TypeOf(ptr)));
+
+    var res: T = undefined;
+    @memcpy(@ptrCast([*]u8, &res), @ptrCast([*]const u8, &ptr), @sizeOf(T));
+    return res;
 }

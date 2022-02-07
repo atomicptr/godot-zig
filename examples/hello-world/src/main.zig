@@ -9,6 +9,7 @@ pub const HelloWorld = struct {
 
     pub fn init(self: *Self) void {
         _ = self;
+        // TODO: replace this with godot.print later...
         std.log.info("Hello, World!\n", .{});
     }
 
@@ -22,6 +23,9 @@ export fn godot_nativescript_init(handle: *anyopaque) void {
     std.log.info("godot-zig: godot_nativescript_init()\n", .{});
     godot.initNativeScript(handle);
     godot.registerClass(HelloWorld) catch |err| {
+        std.log.err("godot-zig: godot_nativescript_init: hello-world: {s}\n", .{err});
+    };
+    godot.registerMethod(HelloWorld, HelloWorld._ready, "_ready") catch |err| {
         std.log.err("godot-zig: godot_nativescript_init: hello-world: {s}\n", .{err});
     };
 }
