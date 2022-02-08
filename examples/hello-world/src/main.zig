@@ -17,15 +17,24 @@ pub const HelloWorld = struct {
         _ = self;
         std.log.info("Hello World is ready!\n", .{});
     }
+
+    pub fn update(self: *Self, delta: f32) void {
+        _ = self;
+        std.log.info("Update {}\n", .{delta});
+    }
 };
+
+fn init() !void {
+    try godot.registerClass(HelloWorld);
+    try godot.registerMethod(HelloWorld, HelloWorld._ready, "_ready");
+    try godot.registerMethod(HelloWorld, HelloWorld.update, "_physics_process");
+}
 
 export fn godot_nativescript_init(handle: *anyopaque) void {
     std.log.info("godot-zig: godot_nativescript_init()\n", .{});
     godot.initNativeScript(handle);
-    godot.registerClass(HelloWorld) catch |err| {
-        std.log.err("godot-zig: godot_nativescript_init: hello-world: {s}\n", .{err});
-    };
-    godot.registerMethod(HelloWorld, HelloWorld._ready, "_ready") catch |err| {
+
+    init() catch |err| {
         std.log.err("godot-zig: godot_nativescript_init: hello-world: {s}\n", .{err});
     };
 }

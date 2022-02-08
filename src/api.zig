@@ -198,14 +198,24 @@ fn FunctionWrapper(comptime T: type, comptime F: anytype) type {
 
             const func_type_args = @typeInfo(FuncType).Fn.args;
 
+            var args_index: usize = 0;
+
             inline for (func_type_args) |fn_type_arg, i| {
                 const ArgType = fn_type_arg.arg_type.?;
 
-                // TODO: check if the first object is actually T, because there might be a case where that is not the case...
-                if (i == 0) {
+                const is_parent_struct_type = ArgType == T or ArgType == *T;
+
+                if (i == 0 and is_parent_struct_type) {
                     func_args[i] = @ptrCast(*T, @alignCast(@alignOf(T), object.?));
                 } else {
-                    func_args[i] = @ptrCast(ArgType, @alignCast(@alignOf(ArgType), args[i].?));
+                    const arg = args[args_index].?;
+
+                    func_args[i] = switch (@typeInfo(ArgType)) {
+                        .Pointer => @ptrCast(ArgType, @alignCast(@alignOf(ArgType), arg)),
+                        // TODO: is this correct? *void comes in that is in reality a *f32
+                        else => @ptrCast(*ArgType, @alignCast(@alignOf(ArgType), arg)).*,
+                    };
+                    args_index += 1;
                 }
             }
 
