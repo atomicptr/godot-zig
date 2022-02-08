@@ -41,7 +41,7 @@ export fn godot_nativescript_init(handle: *anyopaque) void {
 
 export fn godot_gdnative_init(options: *godot.c_api.godot_gdnative_init_options) void {
     std.log.info("godot-zig: godot_gdnative_init()\n", .{});
-    godot.init(options);
+    godot.init(std.heap.c_allocator, options);
 }
 
 export fn godot_gdnative_terminate(options: *godot.c_api.godot_gdnative_terminate_options) void {

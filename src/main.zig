@@ -5,6 +5,7 @@ pub const api = @import("api.zig");
 // add important methods to root scope for more comfortable access
 pub const initNativeScript = api.initNativeScript;
 pub const init = api.init;
+pub const initWithDefaultAllocator = api.initWithDefaultAllocator;
 pub const terminate = api.terminate;
 pub const registerClass = api.registerClass;
 pub const registerMethod = api.registerMethod;

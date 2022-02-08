@@ -18,15 +18,21 @@ const InstanceDestroyFunc = fn (?*c_api.godot_object, ?*anyopaque, ?*anyopaque) 
 pub var core: ?*const GDNativeCoreApi = null;
 pub var native: ?*const GDNativeExtNativeScriptApiStruct = null;
 pub var handle: ?*anyopaque = null;
-const allocator = std.heap.c_allocator;
+pub var allocator: std.mem.Allocator = undefined;
 
-/// Initialize native script, to be called in "godot_nativescript_init"
+/// Initialize native script with a custom allocator, to be called in "godot_nativescript_init"
 pub fn initNativeScript(nativescript_handle: *anyopaque) void {
     handle = nativescript_handle;
 }
 
+/// Initialize native script with the c allocator, to be called in "godot_nativescript_init"
+pub fn initWithDefaultAllocator(options: *GDNativeInitOptions) void {
+    init(std.heap.c_allocator, options);
+}
+
 /// Initialize gdnative, to be called in "godot_gdnative_init"
-pub fn init(options: *GDNativeInitOptions) void {
+pub fn init(allocator_: std.mem.Allocator, options: *GDNativeInitOptions) void {
+    allocator = allocator_;
     core = options.api_struct;
 
     var i: usize = 0;
@@ -46,6 +52,7 @@ pub fn terminate() void {
     native = null;
     core = null;
     handle = null;
+    allocator = undefined;
 }
 
 /// Register a class to Godot, to be called in "godot_nativescript_init"
