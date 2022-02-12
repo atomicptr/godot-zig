@@ -249,7 +249,12 @@ pub fn createMethod(classname: []const u8, methodname: []const u8) !*c_api.godot
         return Errors.GDNativeCoreApiNotInitialized;
     }
 
-    return core.?.godot_method_bind_get_method.?(classname, methodname);
+    var c_class_name = try std.cstr.addNullByte(allocator, classname);
+    defer allocator.free(c_class_name);
+    var c_method_name = try std.cstr.addNullByte(allocator, methodname);
+    defer allocator.free(c_method_name);
+
+    return core.?.godot_method_bind_get_method.?(c_class_name, c_method_name);
 }
 
 pub fn createObject(comptime T: type, constructor: GDConstructorFunc) *T {

@@ -17,17 +17,11 @@ pub const HelloWorld = struct {
         _ = self;
         std.log.info("Hello World is ready!\n", .{});
     }
-
-    pub fn update(self: *Self, delta: f32) void {
-        _ = self;
-        std.log.info("Update {}\n", .{delta});
-    }
 };
 
 fn init() !void {
     try godot.registerClass(HelloWorld);
     try godot.registerMethod(HelloWorld, HelloWorld._ready, "_ready");
-    try godot.registerMethod(HelloWorld, HelloWorld.update, "_physics_process");
 }
 
 export fn godot_nativescript_init(handle: *anyopaque) void {
